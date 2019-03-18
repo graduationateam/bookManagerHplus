@@ -59,9 +59,9 @@ function TableInit (){
 		 		valign: 'middle',
 		 		formatter: function(value, row, index){
 					return [
-						'<a class="btn btn-default" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >添加字典值</a>',
-						'<a class="btn btn-default" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
-						'<a class="btn btn-default" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
+						'<a class="btn btn-primary" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >添加字典值</a>',
+						'<a class="btn btn-primary" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
+						'<a class="btn btn-primary" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
 					].join('');
 				}
 		 	}],
@@ -131,8 +131,8 @@ function InitSubTable(index, row, $detail) {
 			title: '操作',
 			formatter:function(value, row, index){
 				return [
-					'<a class="btn btn-default" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
-					'<a class="btn btn-default" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
+					'<a class="btn btn-primary" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
+					'<a class="btn btn-primary" href="#" onclick="deleteDictData(\'' +value + '\')">删除</a>'
 				].join('');
 			}
 		}],
@@ -176,7 +176,7 @@ function InitSubTable(index, row, $detail) {
 			$('#addDictModal').modal('hide');//关闭 添加model
 			if(result.code == 1){
 				$alertSucc("添加成功！");
-				$('#dictList').bootstrapTable('refresh')
+				$('#dictList').bootstrapTable('refresh');
 			}else{
 				$('#addDictDataModal').modal('hide');
 				$alertFail("添加失败！");
@@ -233,15 +233,27 @@ function addDictData(){
  * 删除字典
  */
 function deleteDict(id){
-	
+	if(confirm("确定删除吗？")){
+		console.log(id);
+		// Manager/dictionaryModule/deleteDictionaryData/{dictId}
+		var url = $baseUrl+"Manager/dictionaryModule/delete/"+id;
+		
+		$DelAjax(url,id);
+	}
 }
-
 /**
  * 删除字典值
  */
 function deleteDictData(id){
-	
+	if(confirm("确定删除吗？")){
+		console.log(id);
+		// Manager/dictionaryModule/deleteDictionaryData/{dictId}
+		var url = $baseUrl+"Manager/dictionaryModule/deleteDictionaryData/"+id;
+		
+		$DelAjax(url,id);
+	}
 }
+
 
 function $DelAjax(url,id){
 	$.ajax(url,{
@@ -255,10 +267,10 @@ function $DelAjax(url,id){
 			}else{
 				$alertFail("删除失败！");
 			}
-			
 		},
 		error:function(xhr,type,errorThrown){
 			$alertFail("删除失败！");
 		}
 	});
+	$('#dictList').bootstrapTable('refresh');
 }

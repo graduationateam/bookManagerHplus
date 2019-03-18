@@ -1,22 +1,11 @@
-
-function operateFormatter(value, row, index) {//赋予的参数
-		return [
-			'<a class="btn btn-default" href="#">冻结</a>'
-			
-		].join('');
-}
-	
-var $table;
-	  
-//初始化bootstrap-table的内容
-function InitMainTable () {
-	//记录页面bootstrap-table全局变量$table，方便应用
-	var queryUrl = $baseUrl+'Manager/userModule/toList';
-	 $('#userListTable').bootstrapTable({
-		url: queryUrl,                      //请求后台的URL（*）
+/**
+ * 初始化字典列表
+ */
+function TableInit (){
+	$('#auctionList-grid').bootstrapTable({
+		url: $baseUrl+"Manager/bookModule/getList",                      //请求后台的URL（*）
 		dataType:"json",
 		method: 'post',                      //请求方式（*）
-		//toolbar: '#toolbar',              //工具按钮用哪个容器
 		striped: true,                      //是否显示行间隔色
 		cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
 		pagination: true,                   //是否显示分页（*）
@@ -25,7 +14,7 @@ function InitMainTable () {
 		pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
 		pageSize: 10,                     //每页的记录行数（*）
 		pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-		search: false,                      //是否显示表格搜索
+		search: true,                      //是否显示表格搜索
 		strictSearch: true,
 		showColumns: true,                  //是否显示所有的列（选择显示的列）
 		showRefresh: true,                  //是否显示刷新按钮
@@ -39,56 +28,76 @@ function InitMainTable () {
 		contentType: 'application/x-www-form-urlencoded',
 		//得到查询的参数
 		queryParams : function (params) {
-			console.log(params);
+			//console.log(params);
 			//这里的键的名字和控制器的变量名必须一致，这边改动，控制器也需要改成一样的
 			var temp = {   
 				limit: params.limit,                         //页面大小
 				page: (params.offset / params.limit) + 1,   //页码
 			  
 			};
-			console.log(temp);
 			return temp;
 		},
 		//queryParamsType:'',
 		columns: [{
-			checkbox: true,  
-			visible: true                  //是否显示复选框  
-		}, {
-			field: 'userName',
-			title: '姓名',
-			sortable: true
-		}, {
-			field: 'phone',
-			title: '手机',
-			sortable: true
-		}, {
-			field: 'email',
-			title: '邮箱',
-			sortable: true,
-			//formatter: emailFormatter
-		},
-		{
-			field: 'gender',
-			title: '性别',
-			sortable: true
-		}, {
-			field:'id',
-			title: '操作',
-			width: 120,
-			align: 'center',
-			valign: 'middle',
-			formatter: operateFormatter
-		}, ],
+		 		field: 'name',
+		 		title: '书名',
+		 		sortable: true
+		 	},{
+		 		field: 'originalPrice',
+		 		title: '原价',
+		 		sortable: true
+		 	},{
+		 		field: 'price',
+		 		title: '售价',
+		 		sortable: true
+		 	},{
+		 		field: 'quantity',
+		 		title: '数量',
+		 		sortable: true
+		 	},{
+		 		field: 'bookOldState',
+		 		title: '新旧程度',//1:九成新,2:八成新,3:七成新,4：六成新及以下
+		 		sortable: true
+		 	},{
+		 		field: 'classificationId',
+		 		title: '分类id',
+		 		sortable: true
+		 	},{
+		 		field: 'createTime',
+		 		title: '创建时间',
+		 		sortable: true
+		 	},{
+		 		field: 'updateTime',
+		 		title: '最后更新时间',
+		 		sortable: true
+		 	}, {
+		 		field:'id',
+		 		title: '操作',
+		 		//width: 120,
+		 		align: 'center',
+		 		valign: 'middle',
+		 		formatter: function(value, row, index){
+					
+					if(row.isDrop==1){
+						//已经上架了，显示下架操作
+					}
+					
+					return [
+						'<a class="btn btn-primary" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >审核通过</a>'
+					].join('');
+				}
+		 	}],
 		onLoadSuccess: function () {
 		},
 		onLoadError: function () {
 			showTips("数据加载失败！");
 		},
 		onDblClickRow: function (row, $element) {
-			var id = row.id;
-			console.log(id);
-			//EditViewById(id, 'view');
+		
 		}, 
+		onExpandRow: function (index, row, $detail) {
+	       InitSubTable(index, row, $detail);
+	   },
 		responseHandler:function(res){
 		//在ajax获取到数据，渲染表格之前，修改数据源
 		//console.log(res);
@@ -103,4 +112,5 @@ function InitMainTable () {
 		return t_data;
 		} 
 	});
-};
+	 
+}

@@ -23,10 +23,10 @@
             <div class="col-sm-12">
                 <div class="ibox">
 					<div class="ibox-content animated fadeInRight ">
-						<div id="gridtoolbar" >
+						<div id="gridtoolbar" style="overflow:scroll;">
 							<button onclick="()" class="btn btn-primary pull-left" type="button"><i class="fa fa-plus"></i>&nbsp;添加</button>
+							<table id="auctionList-grid"  style="table-layout: fixed;min-width:2100px;" data-mobile-responsive="true"></table>
 						</div>
-						<table id="grid" style="table-layout: fixed;"></table>
 					</div>
 				</div>
             </div>
@@ -49,6 +49,13 @@
 	<script src="js/vue.js"></script>
 	
 	<script src="js/common/common.js"></script>
+	<script src="js/book/book.js"></script>
+	<script>
+		$(document).ready(function () {
+			TableInit ();
+		});
+	</script>
+
 </body>
 
 </html>

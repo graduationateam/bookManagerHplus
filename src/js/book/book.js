@@ -1,19 +1,9 @@
-
-function operateFormatter(value, row, index) {//赋予的参数
-		return [
-			'<a class="btn btn-default" href="#">冻结</a>'
-			
-		].join('');
-}
-	
-var $table;
-	  
-//初始化bootstrap-table的内容
-function InitMainTable () {
-	//记录页面bootstrap-table全局变量$table，方便应用
-	var queryUrl = $baseUrl+'Manager/userModule/toList';
-	 $('#userListTable').bootstrapTable({
-		url: queryUrl,                      //请求后台的URL（*）
+/**
+ * 初始化字典列表
+ */
+function TableInit (){
+	$('#bookList-grid').bootstrapTable({
+		url: $baseUrl+"Manager/bookModule/getList",                      //请求后台的URL（*）
 		dataType:"json",
 		method: 'post',                      //请求方式（*）
 		//toolbar: '#toolbar',              //工具按钮用哪个容器
@@ -39,46 +29,111 @@ function InitMainTable () {
 		contentType: 'application/x-www-form-urlencoded',
 		//得到查询的参数
 		queryParams : function (params) {
-			console.log(params);
+			//console.log(params);
 			//这里的键的名字和控制器的变量名必须一致，这边改动，控制器也需要改成一样的
 			var temp = {   
 				limit: params.limit,                         //页面大小
 				page: (params.offset / params.limit) + 1,   //页码
 			  
 			};
-			console.log(temp);
 			return temp;
 		},
 		//queryParamsType:'',
-		columns: [{
-			checkbox: true,  
-			visible: true                  //是否显示复选框  
-		}, {
-			field: 'userName',
-			title: '姓名',
-			sortable: true
-		}, {
-			field: 'phone',
-			title: '手机',
-			sortable: true
-		}, {
-			field: 'email',
-			title: '邮箱',
-			sortable: true,
-			//formatter: emailFormatter
-		},
-		{
-			field: 'gender',
-			title: '性别',
-			sortable: true
-		}, {
-			field:'id',
-			title: '操作',
-			width: 120,
-			align: 'center',
-			valign: 'middle',
-			formatter: operateFormatter
-		}, ],
+		columns: [/* {
+		 		field: 'isbn',
+		 		title: 'ISBN号',
+		 		sortable: true
+		 	}, */ {
+		 		field: 'name',
+		 		title: '书名',
+		 		sortable: true
+		 	}, {
+		 		field: 'author',
+		 		title: '作者',
+		 		sortable: true
+		 	},{
+		 		field: 'publishHouse',
+		 		title: '出版社',
+		 		sortable: true
+		 	},{
+		 		field: 'pictureUrl',
+		 		title: '书籍封面图片url',
+		 		sortable: true
+		 	},{
+		 		field: 'originalPrice',
+		 		title: '原价',
+		 		sortable: true
+		 	},{
+		 		field: 'price',
+		 		title: '售价',
+		 		sortable: true
+		 	},{
+		 		field: 'quantity',
+		 		title: '数量',
+		 		sortable: true
+		 	},{
+		 		field: 'bookOldState',
+		 		title: '新旧程度',//1:九成新,2:八成新,3:七成新,4：六成新及以下
+		 		sortable: true
+		 	},{
+		 		field: 'classificationId',
+		 		title: '分类id',
+		 		sortable: true
+		 	},{
+		 		field: 'type',
+		 		title: '类型',//1：求购 2：出售  3:出售
+		 		sortable: true
+		 	},{
+		 		field: 'remark',
+		 		title: '发布人说',
+		 		sortable: true
+		 	},{
+		 		field: 'status',
+		 		title: '状态',// 1:待审核，2：审核通过
+		 		sortable: true
+		 	},{
+		 		field: 'isDrop',
+		 		title: 'isDrop',//1:已下架 ，0:未下架
+		 		sortable: true
+		 	},{
+		 		field: 'onshelfTime',
+		 		title: '上架时间',
+		 		sortable: true
+		 	},{
+		 		field: 'dropshelfTime',
+		 		title: '下架时间',
+		 		sortable: true
+		 	},{
+		 		field: 'description',
+		 		title: '描述',
+		 		sortable: true
+		 	},{
+		 		field: 'createTime',
+		 		title: '创建时间',
+		 		sortable: true
+		 	},{
+		 		field: 'updateTime',
+		 		title: '最后更新时间',
+		 		sortable: true
+		 	}, {
+		 		field:'id',
+		 		title: '操作',
+		 		//width: 120,
+		 		align: 'center',
+		 		valign: 'middle',
+		 		formatter: function(value, row, index){
+					
+					if(row.isDrop==1){
+						//已经上架了，显示下架操作
+					}
+					
+					return [
+						'<a class="btn btn-primary" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >下架</a>',
+						'<a class="btn btn-primary" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
+						'<a class="btn btn-primary" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
+					].join('');
+				}
+		 	}],
 		onLoadSuccess: function () {
 		},
 		onLoadError: function () {
@@ -89,6 +144,9 @@ function InitMainTable () {
 			console.log(id);
 			//EditViewById(id, 'view');
 		}, 
+		onExpandRow: function (index, row, $detail) {
+	       InitSubTable(index, row, $detail);
+	   },
 		responseHandler:function(res){
 		//在ajax获取到数据，渲染表格之前，修改数据源
 		//console.log(res);
@@ -103,4 +161,5 @@ function InitMainTable () {
 		return t_data;
 		} 
 	});
-};
+	 
+}
