@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>Book后台管理</title>
+    
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+	<link href="css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    
+	<div class="wrapper wrapper-content">
+	
+		<div class="row m-b-lg">
+			
+			<div class="col-sm-12" id="app">
+			    <div class="tabs-container">
+			        <ul class="nav nav-tabs">
+						<li class="" v-for="(item,index) in manufactors" v-if="index < 3" >
+							<a data-toggle="tab" :href="'#tab-f-'+item.id"  aria-expanded="true"> {{item.name}}</a>
+						</li>
+						<li class="dropdown">
+							<a href="#" id="myTabDrop1" class="dropdown-toggle"
+							   data-toggle="dropdown">其他
+								<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+								<li class="" v-for="(item,index) in manufactors" v-if="index >= 3" >
+									<a data-toggle="tab" :href="'#tab-f-'+item.id"  aria-expanded="true"> {{item.name}}</a>
+								</li>
+							</ul>
+						</li>
+			        </ul>
+					<div class="tab-content">
+						
+						<div class="tab-pane" v-for="(item,index) in manufactors" :id="'tab-f-'+item.id">
+							<div class="panel-body">
+								<div class="tabs-left" >
+									<ul  class="nav nav-tabs">
+										 <li class="" v-for="(workshop, index2) in workshops" v-if="workshop.factoryId==item.id">
+											<a data-toggle="tab" :href="'#tab-w-'+workshop.id" >{{ workshop.name}}</a>
+										</li> 
+								
+										<!-- <li class="dropdown">
+											<a href="#" :id="'myTabDrop-'+index" class="dropdown-toggle"
+											   data-toggle="dropdown">其他
+												<b class="caret"></b>
+											</a>
+											<ul class="dropdown-menu" role="menu" :aria-labelledby="'myTabDrop-'+index">
+												<li  v-for="(workshop,index2) in workshops" v-if="index2 >= 3 && workshop.factoryId==item.id">
+													<a :href="'tab-w-'+workshop.id" tabindex="-1" data-toggle="tab">{{ workshop.name}}</a>
+												</li>
+											</ul>
+										</li> -->
+									</ul>
+									<div id="" class="tab-content">
+										
+										<div class="tab-pane"  v-for="(workshop,index2) in workshops" v-if="workshop.factoryId==item.id" :id="'tab-w-'+workshop.id">
+											<div class="panel-body">
+												<div class="" v-if="workshop.id==1">
+													<div class="col-sm-11">
+														<div class="ibox">
+															<div class="ibox-content animated fadeInRight ">
+																<table id="conponentList-grid" style="table-layout: fixed;" data-mobile-responsive="true"></table>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						
+					</div>
+					
+				</div>
+			</div>
+			
+						
+						
+		</div>
+		
+		<div class="modal inmodal" id="addCompModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content animated bounceInRight">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span>
+						</button>
+
+						<h4 class="modal-title">添加XX</h4>
+					</div>
+					<div class="modal-body">
+						<form id="addCompForm">
+							<div class="form-group">
+								<label>子件编号</label>
+								<input type="text" placeholder="请输入子件编号" name="componentCode" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>是否原料</label>
+								<select class="form-control m-b col-md-4" name="isMaterial">
+									<option value="0" >否</option>
+									<option value="1">是</option>
+								</select>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="addComp()">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+		<!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="js/content.js?v=1.0.0"></script>
+	
+	<!-- Bootstrap table -->
+	<script src="js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+	<script src="js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+	
+	<!-- vue渲染数据js -->
+	<script src="js/vue.js"></script>
+	<script>
+	
+		$(function(){
+			//$("[data-toggle='tooltip']").tooltip();
+			TableInit();
+		})
+		/**
+		 * 初始化列表
+		 */
+		function TableInit (){
+			var queryUrl = "http://192.168.101.21:8080/component/toList";
+			$('#conponentList-grid').bootstrapTable({
+				url: "http://localhost:8080/component/toList",                      //请求后台的URL（*）
+				dataType:"json",
+				method: 'post',                      //请求方式（*）
+				//toolbar: '#toolbar',              //工具按钮用哪个容器
+				striped: true,                      //是否显示行间隔色
+				cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+				pagination: true,                   //是否显示分页（*）
+				sortable: true,                     //是否启用排序
+				sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+				pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
+				pageSize: 10,                     //每页的记录行数（*）
+				pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+				search: false,                      //是否显示表格搜索
+				strictSearch: false,
+				showColumns: false,                  //是否显示所有的列（选择显示的列）
+				showRefresh: false,                  //是否显示刷新按钮
+				minimumCountColumns: 2,             //最少允许的列数
+				clickToSelect: true,                //是否启用点击选中行
+				//height: 500,                      //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+				uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+				showToggle: false,                   //是否显示详细视图和列表视图的切换按钮
+				cardView: false,                    //是否显示详细视图
+				detailView: false,                  //是否显示父子表
+				contentType: 'application/x-www-form-urlencoded',
+				//得到查询的参数
+				queryParams : function (params) {
+					console.log(params);
+					//这里的键的名字和controller的变量名必须一致，这边改动，controller也需要改成一样的
+					var temp = {   
+						limit: params.limit,                         //页面大小
+						page: (params.offset / params.limit) + 1,   //页码
+						keyword: params.search  ,//搜索
+						
+					};
+					console.log(temp);
+					return temp;
+				},
+				//queryParamsType:'',
+				columns: [{
+				 		checkbox: true,  
+				 		visible: true                  //是否显示复选框  
+				 	}, {
+				 		field: 'componentCode',
+				 		title: '子件编码',
+				 		sortable: true
+				 	}, {
+				 		field: 'componentName',
+				 		title: '子件名称',
+				 		sortable: true
+				 	},{
+				 		field: 'componentUnit',
+				 		title: '子件计量单位',
+				 		sortable: true
+				 	}, {
+				 		field: 'isMaterial',
+				 		title: '排产数量',
+				 		formatter: function(value, row, index){
+								let count = (index+1)*100;
+								return count;
+				 			}
+				 	}, {
+				 		field: 'isMaterial',
+				 		title: '生产数量',
+				 		formatter: function(value, row, index){
+								return "0";
+				 			}
+				 	}
+					, {
+				 		field: 'isMaterial',
+				 		title: '车间剩余量',
+				 		formatter: function(value, row, index){
+								return "0";
+				 			}
+				 	},{
+				 		field:'id',
+				 		title: '操作',
+				 		//width: 120,
+				 		align: 'center',
+				 		valign: 'middle',
+				 		formatter: function(value, row, index){
+					//JSON.stringify(row)
+							 return "<div class='float-e-margins'>"+ 
+								"<a class='btn btn-xs btn-info' href='#' onclick='toEditComp("+value+ ")'>入库</a>"+
+								"<a class='btn btn-xs btn-info' href='#' onclick='deleteComp("+value+ ")'>生产</a>"+
+								"<a class='btn btn-xs btn-info' href='#' onclick='deleteComp("+value+ ")'>使用</a>"+
+								"<a class='btn btn-xs btn-danger' href='#' onclick='deleteComp("+value+ ")'>申请使用库存</a>"+
+							"</div>"; 
+							/* return [
+								'<div class="float-e-margins">', 
+									'<a class="btn btn-xs btn-info" href="#" onclick="toEditComp(\''+row + '\')">编辑</a>',
+									'<a class="btn btn-xs btn-info" href="#" onclick="toEditComp(\" +item + \")">编辑</a>',
+									'<a class="btn btn-xs btn-danger" href="#" onclick="deleteComp(\'' +value + '\')">删除</a>',
+								'</div>'
+							].join(''); */
+						}
+				 	}],
+				onLoadSuccess: function () {
+				},
+				onLoadError: function () {
+					showTips("数据加载失败！");
+				},
+				onDblClickRow: function (row, $element) {
+					var id = row.id;
+					console.log(id);
+					//EditViewById(id, 'view');
+				}, 
+				onExpandRow: function (index, row, $detail) {
+			       InitSubTable(index, row, $detail);
+			   },
+				responseHandler:function(res){
+					console.log(res);
+				//在ajax获取到数据，渲染表格之前，修改数据源
+				var t_data=[];
+				if(res.code==0){
+					t_data = {total:res.data.total,rows:res.data.list};
+				}
+				else{
+					t_data = {total:0,rows:[]};
+				}
+				//console.log(t_data);
+				return t_data;
+				} 
+			});
+			 
+		}
+		
+		$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+		  e.target // 激活的标签页
+		  e.relatedTarget // 前一个激活的标签页
+		  
+		  
+		})
+		var app = new Vue({
+			el:"#app",
+			data:{
+				/* list:[{"id":1,"name":"天泉1","workshops":[{"id":"1" ,"factoryId":1,"name":"车间1"},{"id":"2" ,"factoryId":1,"name":"车间2"},{"id":"3" ,"factoryId":1,"name":"车间3"},{"id":"4" ,"factoryId":2,"name":"车间4"},{"id":"5" ,"factoryId":2,"name":"车间5"}]},
+					  {"id":2,"name":"天泉2","workshops":[{"id":"6" ,"factoryId":2,"name":"车间6"},{"id":"7" ,"factoryId":3,"name":"车间7"},{"id":"8" ,"factoryId":3,"name":"车间8"},{"id":"9" ,"factoryId":3,"name":"车间9"}]},
+					  {"id":3,"name":"天泉3","workshops":[{"id":"10" ,"factoryId":4,"name":"车间10"},{"id":"11" ,"factoryId":4,"name":"车间11"},{"id":"12" ,"factoryId":4,"name":"车间12"},{"id":"13" ,"factoryId":5,"name":"车间13"},{"id":"14" ,"factoryId":5,"name":"车间14"}]},
+					  {"id":4,"name":"天泉4","workshops":[{"id":"15" ,"factoryId":5,"name":"车间15"},{"id":"16" ,"factoryId":6,"name":"车间16"},{"id":"17" ,"factoryId":6,"name":"车间17"},{"id":"3" ,"factoryId":6,"name":"车间18"}]},
+					  {"id":5,"name":"天泉5","workshops":[{"id":"19" ,"factoryId":7,"name":"车间19"},{"id":"20" ,"factoryId":7,"name":"车间20"},{"id":"3" ,"factoryId":7,"name":"车间21"},{"id":"22" ,"factoryId":8,"name":"车间22"},{"id":"23" ,"factoryId":8,"name":"车间23"}]},
+					  {"id":6,"name":"天泉6","workshops":[{"id":"24" ,"factoryId":8,"name":"车间24"},{"id":"25" ,"factoryId":9,"name":"车间25"},{"id":"26" ,"factoryId":9,"name":"车间26"},{"id":"27" ,"factoryId":9,"name":"车间27"}]}], */
+				manufactors:[{"id":1,"name":"天泉1"},{"id":2,"name":"天泉2"},
+					        {"id":3,"name":"天泉3"},{"id":4,"name":"天泉4"},
+					        {"id":5,"name":"天泉5"},{"id":6,"name":"天泉6"}],
+				workshops:[{"id":"1" ,"factoryId":1,"name":"车间1"},{"id":"2" ,"factoryId":1,"name":"车间2"},
+					{"id":"3" ,"factoryId":1,"name":"车间3"},{"id":"4" ,"factoryId":2,"name":"车间4"},
+					{"id":"5" ,"factoryId":2,"name":"车间5"}, {"id":"6" ,"factoryId":2,"name":"车间6"},
+					{"id":"7" ,"factoryId":3,"name":"车间7"},{"id":"8" ,"factoryId":3,"name":"车间8"},
+					{"id":"9" ,"factoryId":3,"name":"车间9"},{"id":"10" ,"factoryId":4,"name":"车间10"},
+				    {"id":"11" ,"factoryId":4,"name":"车间11"},{"id":"12" ,"factoryId":4,"name":"车间12"},
+					{"id":"13" ,"factoryId":5,"name":"车间13"},{"id":"14" ,"factoryId":5,"name":"车间14"},
+					{"id":"15" ,"factoryId":5,"name":"车间15"},{"id":"16" ,"factoryId":6,"name":"车间16"},
+					{"id":"17" ,"factoryId":6,"name":"车间17"},{"id":"3" ,"factoryId":6,"name":"车间18"},
+					{"id":"19" ,"factoryId":1,"name":"车间19"},{"id":"20" ,"factoryId":2,"name":"车间20"},
+					{"id":"3" ,"factoryId":3,"name":"车间21"},{"id":"22" ,"factoryId":4,"name":"车间22"},
+					{"id":"23" ,"factoryId":5,"name":"车间23"},{"id":"24" ,"factoryId":6,"name":"车间24"},
+					{"id":"25" ,"factoryId":1,"name":"车间25"},{"id":"26" ,"factoryId":2,"name":"车间26"},
+					{"id":"27" ,"factoryId":3,"name":"车间27"}]	
+			}
+		})
+		
+	</script>
+	
+</body>
+
+</html>
