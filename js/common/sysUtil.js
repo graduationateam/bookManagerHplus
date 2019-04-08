@@ -1,12 +1,19 @@
 var sysUtils = $.extend({}, sysUtils); //全局对象
 
-sysUtils.message = function(title) {
-	$.messager.show({
-		msg : title,
-		title : '提示'
-	});
-};
+sysUtils.baseUrl = "http://localhost:8080/";
 
+sysUtils.message =  function(msg){
+	 layer.alert(msg, {
+	   skin: 'layui-layer-molv' //样式类名 layui-bg-red
+	   ,closeBtn: 0
+	 });
+};
+sysUtils.errMessage = function(msg) {
+	layer.alert(msg, {
+ 	   skin: 'layui-bg-red' //样式类名 layui-bg-red
+ 	   ,closeBtn: 0
+ 	});
+};
 sysUtils.bigmessage = function(title) {
 	$.messager.show({
 		width:300,
@@ -195,3 +202,4 @@ sysUtils.isNull = function(val) {
     	return false;
 	}
 };
+

@@ -1,9 +1,24 @@
+$('#addDictModal').on('hide.bs.modal', function () {
+	//当关闭modal时
+    document.getElementById("addDictForm").reset();//表单重置
+
+    $("#dictId").val("");
+});
+$('#dictItemModal').on('hide.bs.modal', function () {
+	//当关闭modal时
+    document.getElementById("dictItemForm").reset();//表单重置
+
+    $("#dictItemId").val("");
+    $("#dictItem-dictId").val("");
+});
+
 /**
  * 初始化字典列表
  */
 function TableInit (){
+	$('#dictList').bootstrapTable('destroy');
 	$('#dictList').bootstrapTable({
-		url: $baseUrl+"Manager/dictionaryModule/toList",                      //请求后台的URL（*）
+		url: sysUtils.baseUrl+"dictionary/toList",                      //请求后台的URL（*）
 		dataType:"json",
 		method: 'post',                      //请求方式（*）
 		//toolbar: '#toolbar',              //工具按钮用哪个容器
@@ -34,46 +49,34 @@ function TableInit (){
 			var temp = {   
 				limit: params.limit,                         //页面大小
 				page: (params.offset / params.limit) + 1,   //页码
-			  
+			    keyword: params.searchText,
 			};
-			console.log(temp);
+			//console.log(temp);
 			return temp;
 		},
 		//queryParamsType:'',
-		columns: [{
-		 		checkbox: true,  
-		 		visible: true                  //是否显示复选框  
-		 	}, {
-		 		field: 'dictCode',
-		 		title: '字典代码',
-		 		sortable: true
-		 	}, {
-		 		field: 'dictName',
-		 		title: '字典名称',
-		 		sortable: true
-		 	}, {
-		 		field:'id',
-		 		title: '操作',
-		 		//width: 120,
-		 		align: 'center',
-		 		valign: 'middle',
-		 		formatter: function(value, row, index){
-					return [
-						'<a class="btn btn-default" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >添加字典值</a>',
-						'<a class="btn btn-default" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
-						'<a class="btn btn-default" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
-					].join('');
-				}
-		 	}],
-		onLoadSuccess: function () {
-		},
+		columns: [{field: 'dictCode',title: '字典代码',},
+				  {field: 'dictName',title: '字典名称'}, 
+				  {field:'id', title: '操作',
+		 		  //width: 120,
+					align: 'center',
+					valign: 'middle',
+					formatter: function(value, row, index){
+						//JSON.stringify(row);
+						return "<div class='float-e-margins'>"+
+									"<a class='btn btn-xs btn-primary' href='#' onclick='beforeAddDictItem("+value+ ")'>添加字典值</a>&nbsp;"+
+									"<a class='btn btn-xs btn-info' href='#'  onclick='beforeEditDict("+JSON.stringify(row)+ ")'>编辑</a>&nbsp;"+
+									"<a class='btn btn-xs btn-danger' href='#' onclick='deleteDict("+value+ ")'>删除</a>&nbsp;"+
+								"</div>";
+						/* return [
+							'<a class="btn btn-xs btn-primary" href="#" onclick="openAddDictDataModel(\'' +value + '\')" >添加字典值</a>&nbsp;',
+							'<a class="btn btn-xs btn-info" href="#" onclick="beforeEditDict(\'' +JSON.stringify(row) + '\')">编辑</a>&nbsp;',
+							'<a class="btn btn-xs btn-danger" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
+						].join(''); */
+					}
+				}],
 		onLoadError: function () {
-			showTips("数据加载失败！");
-		},
-		onDblClickRow: function (row, $element) {
-			var id = row.id;
-			console.log(id);
-			//EditViewById(id, 'view');
+			sysUtils.message("数据加载失败！");
 		}, 
 		onExpandRow: function (index, row, $detail) {
 	       InitSubTable(index, row, $detail);
@@ -83,7 +86,7 @@ function TableInit (){
 		//console.log(res);
 		var t_data=[];
 		if(res.code==1){
-			t_data = {total:res.data.total,rows:res.data.list};
+			t_data = {total:res.data.total,rows:res.data.rows};
 		}
 		else{
 			t_data = {total:0,rows:[]};
@@ -101,7 +104,7 @@ function TableInit (){
 function InitSubTable(index, row, $detail) {
 	var parentid = row.id;
 	var cur_table = $detail.html('<table></table>').find('table');
-	var queryUrl = $baseUrl+'Manager/dictionaryModule/toDetail/'+row.id;
+	var queryUrl = sysUtils.baseUrl+'/dictionary/toDetail/'+row.id;
 	$(cur_table).bootstrapTable({
 		url: queryUrl,
 		method: 'post',
@@ -115,46 +118,31 @@ function InitSubTable(index, row, $detail) {
 		detailView: false,//父子表
 		pageSize: 10,
 		pageList: [10, 25],
-		columns: [{
-			checkbox: true
-		}, {
-			field: 'id',
-			title: 'ID'
-		}, {
-			field: 'dictId',
-			title: '父级代码'
-		}, {
-			field: 'dictValue',
-			title: '值'
-		}, {
-			field: 'id',
-			title: '操作',
-			formatter:function(value, row, index){
-				return [
-					'<a class="btn btn-default" href="#" onclick="editDict(\'' +value + '\')">编辑</a>',
-					'<a class="btn btn-default" href="#" onclick="deleteDict(\'' +value + '\')">删除</a>'
-				].join('');
-			}
-		}],
+		columns:  [
+            {field: 'itemName',title: '字典项目名', width: 60, align: 'center'},
+            {field: 'itemValue',title: '字典项目值', width: 60, align: 'center'},
+            {field: 'id', title: '主要操作', width: 40, align: 'center', 
+			formatter: function(value, row, index) {
+				//JSON.stringify(row);
+				return "<div class='float-e-margins'>"+
+							"<a class='btn btn-xs btn-info' href='#'  onclick='beforeEditDictItem("+JSON.stringify(row)+ ")'>编辑</a>&nbsp;"+
+							"<a class='btn btn-xs btn-danger' href='#' onclick='deleteDictItem("+value+ ")'>删除</a>&nbsp;"+
+						"</div>";
+                }}
+        ],
 		responseHandler:function(res){
 		//在ajax获取到数据，渲染表格之前，修改数据源
 			var t_data=[];
+			console.log(res);
 			if(res.code==1){
-				//console.log(res);
-				t_data = {total:res.data.total,rows:res.data.list};
+				t_data = {total:res.data.total,rows:res.data.rows};
 			}
 			else{
 				t_data = {total:0,rows:[]};
 				console.log("res");
 			}
-			console.log(t_data);
 			return t_data;
 		}
-		//无线循环取子表，直到子表里面没有记录
-		/* onExpandRow: function (index, row, $Subdetail) {
-			oInit.InitSubTable(index, row, $Subdetail);
-		} */
-		
 	});
 };
  
@@ -162,103 +150,141 @@ function InitSubTable(index, row, $detail) {
  /**
   * 添加字典
   */
- function addDict(){
-	var dictionary = $('#addDictForm').serialize();
-	console.log(dictionary);
-	var url = $baseUrl+"Manager/dictionaryModule/addDictionary";
-	console.log(url);
-	$.ajax(url,{
-		data:$('#addDictForm').serialize(),
+ function saveDict(){
+	 
+	//是添加还是修改
+	var url = "";
+	if(sysUtils.isNull($("#dictId").val())){
+		url = sysUtils.baseUrl+"dictionary/addDictionary";
+	}
+	else{
+		url = sysUtils.baseUrl+"dictionary/updateDictionary";
+	}
+	
+	var dictionary = new FormData($('#addDictForm')[0]);
+	
+	 $.ajax(url,{
+		data:dictionary,
 		dataType:'json',//服务器返回json格式数据
 		type:'post',//HTTP请求类型
-		timeout:10000,//超时时间设置为10秒；
+		cache: false,                      // 不缓存
+		processData: false,                // jQuery不要去处理发送的数据
+		contentType: false,                // jQuery不要去设置Content-Type请求头
 		success:function(result){
-			$('#addDictModal').modal('hide');//关闭 添加model
+			//关闭 modal
+			$('#addDictModal').modal('hide');
+			
 			if(result.code == 1){
-				$alertSucc("添加成功！");
-				$('#dictList').bootstrapTable('refresh')
+				sysUtils.message("操作成功！");
+				TableInit ();
 			}else{
-				$('#addDictDataModal').modal('hide');
-				$alertFail("添加失败！");
+				sysUtils.errMessage("操作失败！");
 			}
 			
 		},
 		error:function(xhr,type,errorThrown){
 			$('#addDictDataModal').modal('hide');
-			$alertFail("添加失败！");
+			sysUtils.errMessage("网络出错！");
 		}
-	});
+	}); 
  }
- 
-/**
- * 打开添加字典值的model
- */
-function openAddDictDataModel(id){
-	$('#addDictDataModal').modal('show');
-	$("input[name='dictId']").val(id);
-	console.log(id);
+
+/* 修改字典前的操作 */
+function beforeEditDict(dict){
+	$("#dictId").attr("value",dict.id);
+	$("input[name='dictCode']").val(dict.dictCode);
+	$("input[name='dictName']").val(dict.dictName);
+	
+	$('#addDictModal').modal('show');
+	
 }
 
 /**
+ * 添加字典项前的操作
+ */
+function beforeAddDictItem(id){
+	$('#dictItemModal').modal('show');
+	$("#dictItem-dictId").attr("value",id);
+	console.log(id);
+}
+/* 修改字典项前的操作 */
+function beforeEditDictItem(dictItem){
+	$("#dictItemId").attr("value",dictItem.id);
+	$("#dictItem-dictId").attr("value",dictItem.dictId);
+	$("input[name='itemName']").val(dictItem.itemName);
+	$("input[name='itemValue']").val(dictItem.itemValue);
+	
+	$('#dictItemModal').modal('show');
+	
+}
+/**
  * 添加字典值
  */
-function addDictData(){
-	var dictionary = $('#addDictDataForm').serialize();
-	console.log(dictionary);
-	var url = $baseUrl+"Manager/dictionaryModule/addDictionaryData";
-	$.ajax(url,{
-		data:$('#addDictDataForm').serialize(),
+function saveDictItem(){
+	
+	//是添加还是修改
+	var url = "";
+	if(sysUtils.isNull($("#dictItemId").val())){
+		url = sysUtils.baseUrl+"dictionary/addDictionaryItem";
+	}
+	else{
+		url = sysUtils.baseUrl+"dictionary/updateDictionaryItem";
+	}
+	
+	var dictionary = new FormData($('#dictItemForm')[0]);
+	
+	 $.ajax(url,{
+		data:dictionary,
 		dataType:'json',//服务器返回json格式数据
 		type:'post',//HTTP请求类型
-		timeout:10000,//超时时间设置为10秒；
+		cache: false,                      // 不缓存
+		processData: false,                // jQuery不要去处理发送的数据
+		contentType: false,                // jQuery不要去设置Content-Type请求头
 		success:function(result){
-			$('#addDictDataModal').modal('hide');//关闭 添加model
+			//关闭 modal
+			$('#dictItemModal').modal('hide');
+			
 			if(result.code == 1){
-				$alertSucc("添加成功！");
-				$('#dictList').bootstrapTable('refresh')
+				sysUtils.message("操作成功！");
+				TableInit ();
 			}else{
-				$('#addDictModal').modal('hide');
-				$alertFail("添加失败！");
+				sysUtils.errMessage("操作失败！");
 			}
 			
 		},
 		error:function(xhr,type,errorThrown){
-			$('#addDictModal').modal('hide');
-			$alertFail("添加失败！");
+			$('#dictItemModal').modal('hide');
+			sysUtils.errMessage("网络出错！");
 		}
-	});
+	}); 
 }
 
 /**
  * 删除字典
  */
 function deleteDict(id){
-	
+  var url = sysUtils.baseUrl+"dictionary/delete/"+id;
+  ajaxDeleteById(url,id,function(result){
+	  if(result.code == 1){
+	  	sysUtils.message("删除成功！");
+	  	TableInit ();
+	  }else{
+	  	sysUtils.errMessage("删除失败！");
+	  }
+  });
 }
 
 /**
  * 删除字典值
  */
-function deleteDictData(id){
-	
-}
-
-function $DelAjax(url,id){
-	$.ajax(url,{
-		data:{id:id},
-		dataType:'json',//服务器返回json格式数据
-		type:'post',//HTTP请求类型
-		timeout:10000,//超时时间设置为10秒；
-		success:function(result){
-			if(result.code == 1){
-				$alertSucc("删除成功！");
-			}else{
-				$alertFail("删除失败！");
-			}
-			
-		},
-		error:function(xhr,type,errorThrown){
-			$alertFail("删除失败！");
-		}
+function deleteDictItem(id){
+	var url = sysUtils.baseUrl+"dictionary/deleteDictionaryItem/"+id;
+	ajaxDeleteById(url,id,function(result){
+		  if(result.code == 1){
+		  	sysUtils.message("删除成功！");
+		  	TableInit ();
+		  }else{
+		  	sysUtils.errMessage("删除失败！");
+		  }
 	});
 }
