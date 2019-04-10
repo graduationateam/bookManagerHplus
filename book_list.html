@@ -20,19 +20,6 @@
 </head>
 
 <body class="gray-bg">
-    <div class="row wrapper border-bottom white-bg page-heading">
-        <div class="col-sm-4">
-            <h2>书籍管理</h2>
-            <ol class="breadcrumb">
-                <li>
-                    <a href="welcome.html">首页</a>
-                </li>
-                <li>
-                    <strong>书籍列表</strong>
-                </li>
-            </ol>
-        </div>
-    </div>
 
     <div class="wrapper wrapper-content">
         <div class="row">
@@ -40,13 +27,150 @@
 			    
 			    <div class="">
 					<div id="gridtoolbar" >
-                        <button  data-toggle="modal" data-target="#addCompModal" class="btn btn-primary pull-left" type="button"><i class="fa fa-plus"></i>&nbsp;添加</button>
-                    </div>
+                        <form  class="form-horizontal" id="searchForm">
+							<div class="form-group">
+								<label class="control-label">类型:</label>
+								<div class="inline">
+									<div class="radio-inline  i-checks" >
+										<label>
+											<input type="radio" value="1" class="radio-active" name="publishType"> <i></i> 出售</label>
+									</div>
+
+									<div class="radio-inline  i-checks">
+										<label>
+											<input type="radio" value="2" name="publishType"> <i></i> 求购</label>
+									</div>
+									<div class="radio-inline  i-checks">
+										<label>
+											<input type="radio" value="3"  name="publishType"> <i></i> 竞拍</label>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
 					<table id="bookListTable"></table>
 			    </div>
 			    <!-- End Example Events -->
 			</div>
 		</div>
+		<!-- 查看详情modal -->
+			<div class="modal inmodal" id="bookDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content animated bounceInRight">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span>
+			                </button>
+			                
+			                <h4 class="modal-title">查看详情</h4>
+			            </div>
+						<div class="modal-body">
+							 <form class="form-horizontal m-t-md"  id="bookForm">
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">书籍名称</label>
+								    <div class="col-sm-10">
+								         <label class="form-control">{{book.name}}</label> 
+								    </div>
+								</div>
+								<div class="hr-line-dashed"></div>
+								
+							    <div class="form-group">
+							        <label class="col-sm-2 control-label">ISBN</label>
+									<div class="col-sm-4">
+									    <label class="form-control">{{book.isbn}}</label>
+									</div>
+							        <label class="col-sm-2 control-label">书籍作者</label>
+							        <div class="col-sm-4">
+							            <label class="form-control">{{book.author}}</label>
+							        </div>
+							    </div>
+							    <div class="hr-line-dashed"></div>
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">出版社</label>
+									<div class="col-sm-4">
+									    <label class="form-control">{{book.publishHouse}}</label>
+									</div>
+								    <label class="col-sm-2 control-label">书籍类型</label>
+								    <div class="col-sm-4">
+								        <label class="form-control">{{book.classification}}</label>
+								    </div>
+								</div>
+								<div class="hr-line-dashed"></div>
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">新旧程度</label>
+									<div class="col-sm-4">
+									    <label class="form-control">{{book.bookOldState}}</label>
+									</div>
+								    <label class="col-sm-2 control-label">是否上架</label>
+								    <div class="col-sm-4">
+								        <label class="form-control">{{book.isDrop}}</label>
+								    </div>
+								</div>
+								<div class="hr-line-dashed"></div>
+							    <div class="form-group">
+							        <label class="col-sm-2 control-label">出售价格</label>
+							    	<div class="col-sm-4">
+							    	    <label class="form-control">{{book.price}}</label>
+							    	</div>
+							        <label class="col-sm-2 control-label">原价</label>
+							        <div class="col-sm-4">
+							            <label class="form-control">{{book.originalPrice}}</label>
+							        </div>
+							    </div>
+								<div class="hr-line-dashed"></div>
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">简介</label>
+								    <div class="col-sm-10">
+										<label class="form-control">{{book.description}}</label>
+								    </div>
+								</div>
+								<div class="hr-line-dashed"></div>
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">发布人说</label>
+								    <div class="col-sm-10">
+										<label class="form-control">{{book.remark}}</label>
+								    </div>
+								</div>
+								
+						
+								<div class="hr-line-dashed"></div>
+								<div class="form-group">
+								    <label class="col-sm-2 control-label">数量</label>
+								    <div class="col-sm-10">
+								        <label class="form-control">{{book.quantity}}</label>
+								    </div>
+								</div>
+								<div class="hr-line-dashed"></div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">封面图片</label>
+									<div class="col-sm-10">
+									    <div class="carousel-map" id="toAddNewPic">
+									    	<div class="col-lg-4">
+									    		<div class="ibox">
+									    			<div class="ibox-content product-box">
+									    				<div class="product-imitation">
+									    					<div id="preview">
+									    						<img :src="book.pictureUrl" class="img-responsive center-block"/>
+									    					</div>
+									    				</div>
+									    			</div>
+									    		</div>
+									    	</div>
+									    </div>
+									    							
+									</div>
+								</div>
+								
+								
+							</form>
+											
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		
     </div>
 
     <!-- 全局js -->
@@ -74,6 +198,13 @@
 	<!-- vue渲染数据js -->
 	<script src="js/vue.js"></script>
 	
+	<!-- layer UI -->
+	<script src="js/plugins/layer/layer.min.js"></script>
+	
+	<!-- 通用js -->
+	<script src="js/common/sysUtil.js"></script>
+	<script src="js/common/common.js"></script>
+	
 	<script src="js/book/book.js"></script>
 	
 	<script>
@@ -82,7 +213,8 @@
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
             });
-			InitMainTable ();
+			$('.radio-active').iCheck('check');
+			
         });
     </script>
 

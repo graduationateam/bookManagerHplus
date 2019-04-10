@@ -11,7 +11,7 @@ var $table;
 //初始化bootstrap-table的内容
 function InitMainTable () {
 //记录页面bootstrap-table全局变量$table，方便应用
-var queryUrl = 'http://localhost:8080/Manager/userModule/toList';
+var queryUrl = sysUtils.baseUrl+'Manager/auctionModule/toList';
  $('#auctionListTable').bootstrapTable({
     url: queryUrl,                      //请求后台的URL（*）
     dataType:"json",
@@ -89,20 +89,10 @@ var queryUrl = 'http://localhost:8080/Manager/userModule/toList';
         align: 'center',
         valign: 'middle',
         formatter: operateFormatter
-    }, ],
-    onLoadSuccess: function () {
-    },
-    onLoadError: function () {
-        showTips("数据加载失败！");
-    },
-    onDblClickRow: function (row, $element) {
-        var id = row.id;
-        console.log(id);
-        //EditViewById(id, 'view');
-    }, 
+    }],
     responseHandler:function(res){
     //在ajax获取到数据，渲染表格之前，修改数据源
-    //console.log(res);
+    console.log(res);
     var t_data=[];
     if(res.code==1){
         t_data = {total:res.data.total,rows:res.data.list};
@@ -115,48 +105,3 @@ var queryUrl = 'http://localhost:8080/Manager/userModule/toList';
     } 
 });
 };
-
-$('#auctionListTable').on('all.bs.table', function(e, name, args) {
-    console.log('Event:', name, ', data:', args);
-  })
-  .on('click-row.bs.table', function(e, row, $element) {
-    //console.log('Event: click-row.bs.table');
-  })
-  .on('dbl-click-row.bs.table', function(e, row, $element) {
-    //console.log('Event: dbl-click-row.bs.table');
-  })
-  .on('sort.bs.table', function(e, name, order) {
-    //console.log('Event: sort.bs.table');
-  })
-  .on('check.bs.table', function(e, row) {
-   //console.log('Event: check.bs.table');
-   alert(row.id);
-  })
-  .on('uncheck.bs.table', function(e, row) {
-   // console.log('Event: uncheck.bs.table');
-   alert(row.id);
-  })
-  .on('check-all.bs.table', function(e) {
-   // console.log('Event: check-all.bs.table');
-   
-  })
-  .on('uncheck-all.bs.table', function(e) {
-   // console.log('Event: uncheck-all.bs.table');
-  })
-  .on('load-success.bs.table', function(e, data) {
-   // console.log('Event: load-success.bs.table');
-  })
-  .on('load-error.bs.table', function(e, status) {
-   // console.log('Event: load-error.bs.table');
-  })
-  .on('column-switch.bs.table', function(e, field, checked) {
-   // console.log('Event: column-switch.bs.table');
-  })
-  .on('page-change.bs.table', function(e, size, number) {
-  // console.log('Event: page-change.bs.table');
-  })
-  .on('search.bs.table', function(e, text) {
-    //console.log('Event: search.bs.table');
-  });
-    
-    

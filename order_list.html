@@ -20,34 +20,11 @@
 </head>
 
 <body class="gray-bg">
-    <div class="row wrapper border-bottom white-bg page-heading">
-        <div class="col-sm-4">
-            <h2>订单管理</h2>
-            <ol class="breadcrumb">
-                <li>
-                    <a href="welcome.html">首页</a>
-                </li>
-                <li>
-                    <strong>订单列表</strong>
-                </li>
-            </ol>
-        </div>
-    </div>
-
     <div class="wrapper wrapper-content">
         <div class="row">
 			<div class="col-sm-12">
 			    
 			    <div class="">
-					<div class="btn-group hidden-xs" id="userListTableEventsToolbar" role="group">
-						<button type="button" class="btn btn-outline btn-default">
-							<i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
-						</button>
-						
-						<button type="button" class="btn btn-outline btn-default">
-							<i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
-						</button>
-					</div>
 					<table id="orderListTable"></table>
 			    </div>
 			    <!-- End Example Events -->
@@ -77,8 +54,15 @@
     <script src="js/demo/peity-demo.js"></script>
 	<script src="js/demo/bootstrap-table-demo.js"></script>
 	
-	<!-- vue渲染数据js -->
+		<!-- vue渲染数据js -->
 	<script src="js/vue.js"></script>
+	
+	<!-- layer UI -->
+	<script src="js/plugins/layer/layer.min.js"></script>
+	
+	<!-- 通用js -->
+	<script src="js/common/sysUtil.js"></script>
+	<script src="js/common/common.js"></script>
 	
 	<script src="js/order/order.js"></script>
 	
