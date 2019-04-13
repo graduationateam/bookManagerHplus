@@ -6,13 +6,12 @@ function operateFormatter(value, row, index) {//赋予的参数
     ].join('');
 }
 
-var $table;
-  
+
+
 //初始化bootstrap-table的内容
 function InitMainTable () {
-//记录页面bootstrap-table全局变量$table，方便应用
-var queryUrl = sysUtils.baseUrl+'Manager/auctionModule/toList';
- $('#auctionListTable').bootstrapTable({
+var queryUrl = sysUtils.baseUrl+'auction/list';
+ $("#auctionListTable").bootstrapTable({
     url: queryUrl,                      //请求后台的URL（*）
     dataType:"json",
     method: 'post',                      //请求方式（*）
@@ -42,48 +41,46 @@ var queryUrl = sysUtils.baseUrl+'Manager/auctionModule/toList';
         console.log(params);
         //这里的键的名字和控制器的变量名必须一致，这边改动，控制器也需要改成一样的
         var temp = {   
-            limit: params.limit,                         //页面大小
+            pageSize: params.limit,                         //页面大小
             page: (params.offset / params.limit) + 1,   //页码
-          
+            flag:true
+		   // classificationId:3
         };
         console.log(temp);
         return temp;
     },
     //queryParamsType:'',
     columns: [{
-        checkbox: true,  
-        visible: true                  //是否显示复选框  
-    }, {
-        field: 'number',
+        field: 'auctionId',
         title: '编号',
         sortable: true
     }, {
-        field: 'name',
+        field: 'bookName',
         title: '书籍名称',
         sortable: true
     }, {
-        field: 'announcer',
+        field: 'author',
         title: '发布者',
         sortable: true,
     },{
-        field: 'price',
+        field: 'originalPrice',
         title: '原价',
         sortable: true,
     },
     {
-        field: 'now_price',
+        field: 'price',
         title: '竞拍价',
         sortable: true,
     }, {
-        field: 'begin_time',
+        field: 'beginTime',
         title: '开始时间',
         sortable: true
     }, {
-        field: 'end_time',
+        field: 'endTime',
         title: '结束时间',
         sortable: true
     }, {
-        field:'id',
+        field:'auctionId',
         title: '操作',
         width: 120,
         align: 'center',
@@ -94,7 +91,7 @@ var queryUrl = sysUtils.baseUrl+'Manager/auctionModule/toList';
     //在ajax获取到数据，渲染表格之前，修改数据源
     console.log(res);
     var t_data=[];
-    if(res.code==1){
+    if(res.code==200){
         t_data = {total:res.data.total,rows:res.data.list};
     }
     else{

@@ -1,7 +1,14 @@
+var v_modal = new Vue({
+	el:"#adressModal",
+	data:{
+		address:[]
+	}
+})
+
 
 function operateFormatter(value, row, index) {//赋予的参数
     return [
-        '<a class="btn btn-default" href="#">删除</a>'
+        '<a class="btn btn-primary" href="#">删除</a>'
         
     ].join('');
 }
@@ -35,7 +42,7 @@ var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getList';
     uniqueId: "id",                     //每一行的唯一标识，一般为主键列
     showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
     cardView: false,                    //是否显示详细视图
-    detailView: false,                  //是否显示父子表
+    detailView: true,                  //是否显示父子表
     contentType: 'application/x-www-form-urlencoded',
     //得到查询的参数
     queryParams : function (params) {
@@ -50,16 +57,9 @@ var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getList';
         return temp;
     },
     //queryParamsType:'',
-    columns: [{
-        checkbox: true,  
-        visible: true                  //是否显示复选框  
-    }, {
-        field: 'order_number',
+    columns: [ {
+        field: 'orderNumber',
         title: '订单编号',
-        sortable: true
-    }, {
-        field: 'name',
-        title: '书籍名称',
         sortable: true
     }, {
         field: 'seller',
@@ -72,20 +72,30 @@ var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getList';
         sortable: true
     }, 
     {
-        field: 'order_amount',
+        field: 'orderAmount',
         title: '订单金额',
         sortable: true
     }, 
     {
         field: 'state',
         title: '订单状态',
-        sortable: true
+         formatter: function(value, row, i){
+			 if(row.state==1){
+				 return "已支付"
+			 }
+			  if(row.state==2){
+			 	return "已发货"
+			 }
+			  if(row.state==1){
+			 	return "已收货"
+			 }
+		 }
     }, 
     {
         field: 'time',
         title: '下单时间',
         sortable: true
-    }, 
+    }/* , 
     {
         field:'id',
         title: '操作',
@@ -93,7 +103,10 @@ var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getList';
         align: 'center',
         valign: 'middle',
         formatter: operateFormatter
-    }],
+    } */],
+	onExpandRow: function (index, row, $detail) {
+	    InitSubTable(index, row, $detail);
+	},
     responseHandler:function(res){
     //在ajax获取到数据，渲染表格之前，修改数据源
     console.log(res);
@@ -109,3 +122,60 @@ var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getList';
     } 
 });
 };
+
+/**
+ * 初始化子table，用于查看字典值
+ */
+function InitSubTable(index, row, $detail) {
+	var parentid = row.id;
+	var cur_table = $detail.html('<table></table>').find('table');
+	var queryUrl = sysUtils.baseUrl+'Manager/orderModule/getDetail/'+row.id;
+	$(cur_table).bootstrapTable({
+		url: queryUrl,
+		method: 'post',
+		//async: false,
+		//queryParams: { strParentID: parentid },
+		//ajaxOptions: { strParentID: parentid },
+		clickToSelect: true,
+		//detailView: true,//父子表
+		uniqueId: "id",
+		sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+		detailView: false,//父子表
+		pageSize: 10,
+		pageList: [10, 25],
+		columns:  [
+			{field: 'publishId',title: '书名', width: 60, align: 'center'},
+			{field: 'price',title: '单价', width: 60, align: 'center'},
+			{field: 'quantity',title: '数量', width: 60, align: 'center'},
+            {field: 'totalprice',title: '总价', width: 60, align: 'center'},
+            {field: 'id', title: '主要操作', width: 40, align: 'center', 
+			formatter: function(value, row, index) {
+				//JSON.stringify(row);
+				return "<div class='float-e-margins'>"+
+							"<a class='btn btn-xs btn-info' href='#'  onclick='seeAddressInfo("+row.addressInfoId+ ")'>查看收货信息</a>&nbsp;"+
+						"</div>";
+                }}
+        ],
+		responseHandler:function(res){
+		//在ajax获取到数据，渲染表格之前，修改数据源
+			var t_data=[];
+			console.log(res);
+			if(res.code==1){
+				t_data = {total:res.data.total,rows:res.data.list};
+			}
+			else{
+				t_data = {total:0,rows:[]};
+				console.log("res");
+			}
+			return t_data;
+		}
+	});
+};
+ function seeAddressInfo(id){
+	 let url=sysUtils.baseUrl+"address/getAddress";
+	 sysUtils.ajaxPost(url,{"id":id},function(res){
+		 console.log(res);
+		 v_modal.address = res.data[0];
+		 $("#adressModal").modal("show");
+	 })
+ }
